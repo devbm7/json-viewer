@@ -44,11 +44,13 @@ body {
 }
 
 .json-bracket {
-  color: #d4d4d4;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .json-comma {
-  color: #d4d4d4;
+  color: #6b7280;
+  font-weight: 500;
 }
 
 .markdown-content {

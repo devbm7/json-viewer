@@ -109,7 +109,7 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
         <textarea
           value={jsonText}
           onChange={handleTextChange}
-          className={`w-full h-96 p-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          className={`w-full h-96 pl-16 pr-4 py-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white ${
             isValid ? 'border-gray-300' : 'border-red-300'
           }`}
           placeholder="Enter JSON data..."
@@ -123,17 +123,6 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
               {index + 1}
             </div>
           ))}
-        </div>
-        
-        {/* JSON content with line numbers offset */}
-        <div className="absolute left-12 top-0 right-0 h-full pointer-events-none">
-          <div className="p-4 font-mono text-sm text-transparent select-none">
-            {jsonText.split('\n').map((line, index) => (
-              <div key={index} className="h-6 leading-6">
-                {line}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

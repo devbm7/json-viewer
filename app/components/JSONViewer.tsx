@@ -48,15 +48,15 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
         <div className="flex items-center">
           <button
             onClick={toggleExpanded}
-            className="p-1 hover:bg-gray-100 rounded mr-1"
+            className="p-1 hover:bg-gray-100 rounded mr-1 text-gray-600"
             disabled={isEmpty}
           >
             {isEmpty ? (
               <div className="w-4 h-4" />
             ) : isExpanded ? (
-              <ChevronDown className="w-4 h-4" />
+              <ChevronDown className="w-4 h-4 text-gray-600" />
             ) : (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4 text-gray-600" />
             )}
           </button>
           
@@ -75,9 +75,9 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
               title="Copy to clipboard"
             >
               {copied ? (
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="h-4 w-4 text-green-500" />
               ) : (
-                <Copy className="w-4 h-4 text-gray-500" />
+                <Copy className="h-4 w-4 text-gray-500" />
               )}
             </button>
           )}
