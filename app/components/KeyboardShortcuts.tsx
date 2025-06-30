@@ -6,13 +6,14 @@ import { Keyboard, X } from 'lucide-react'
 interface KeyboardShortcutsProps {
   onEdit: () => void
   onView: () => void
+  onSideBySide: () => void
   onDownload: () => void
   onClear: () => void
   isOpen?: boolean
   onToggle?: () => void
 }
 
-export default function KeyboardShortcuts({ onEdit, onView, onDownload, onClear, isOpen: externalIsOpen, onToggle }: KeyboardShortcutsProps) {
+export default function KeyboardShortcuts({ onEdit, onView, onSideBySide, onDownload, onClear, isOpen: externalIsOpen, onToggle }: KeyboardShortcutsProps) {
   const [internalIsOpen, setInternalIsOpen] = useState(false)
   
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen
@@ -20,6 +21,7 @@ export default function KeyboardShortcuts({ onEdit, onView, onDownload, onClear,
 
   const shortcuts = [
     { key: 'Ctrl + E', description: 'Edit JSON', action: onEdit },
+    { key: 'Ctrl + B', description: 'Side-by-Side Editor', action: onSideBySide },
     { key: 'Ctrl + V', description: 'View JSON', action: onView },
     { key: 'Ctrl + S', description: 'Download JSON', action: onDownload },
     { key: 'Ctrl + K', description: 'Clear JSON', action: onClear },
