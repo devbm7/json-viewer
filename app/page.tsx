@@ -5,6 +5,7 @@ import { Upload, Download, Edit3, Eye, FileText, X } from 'lucide-react'
 import JSONViewer from './components/JSONViewer'
 import JSONEditor from './components/JSONEditor'
 import FileUpload from './components/FileUpload'
+import DarkModeToggle from './components/DarkModeToggle'
 
 export default function Home() {
   const [jsonData, setJsonData] = useState<any>(null)
@@ -47,13 +48,17 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="container mx-auto px-4 py-8">
         <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            JSON Viewer
-          </h1>
-          <p className="text-gray-600">
+          <div className="flex items-center justify-between mb-4">
+            <div></div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              JSON Viewer
+            </h1>
+            <DarkModeToggle />
+          </div>
+          <p className="text-gray-600 dark:text-gray-400">
             Upload, view, edit, and download JSON files with markdown support
           </p>
         </header>
@@ -65,13 +70,13 @@ export default function Home() {
         ) : (
           <div className="space-y-6">
             {/* Header with file info and actions */}
-            <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <FileText className="h-5 w-5 text-blue-500" />
                   <div>
-                    <h2 className="font-semibold text-gray-900">{fileName}</h2>
-                    <p className="text-sm text-gray-500">
+                    <h2 className="font-semibold text-gray-900 dark:text-white">{fileName}</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       {typeof jsonData === 'object' ? 'JSON Object' : 'JSON Array'}
                     </p>
                   </div>
@@ -116,7 +121,7 @@ export default function Home() {
             </div>
 
             {/* JSON Content */}
-            <div className="bg-white rounded-lg shadow-sm border">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               {isEditing ? (
                 <JSONEditor 
                   data={jsonData} 

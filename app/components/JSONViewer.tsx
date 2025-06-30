@@ -48,22 +48,22 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
         <div className="flex items-center">
           <button
             onClick={toggleExpanded}
-            className="p-1 hover:bg-gray-100 rounded mr-1 text-gray-600"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mr-1 text-gray-600 dark:text-gray-400"
             disabled={isEmpty}
           >
             {isEmpty ? (
               <div className="w-4 h-4" />
             ) : isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-gray-600" />
+              <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-gray-600" />
+              <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             )}
           </button>
           
           <span className="json-bracket">{isArray ? '[' : '{'}</span>
           
           {!isEmpty && !isExpanded && (
-            <span className="text-gray-500 text-sm ml-2">
+            <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
               {isArray ? `${keys.length} items` : `${keys.length} properties`}
             </span>
           )}
@@ -71,13 +71,13 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
           {!isEmpty && isExpanded && (
             <button
               onClick={handleCopy}
-              className="ml-2 p-1 hover:bg-gray-100 rounded"
+              className="ml-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
               title="Copy to clipboard"
             >
               {copied ? (
                 <Check className="h-4 w-4 text-green-500" />
               ) : (
-                <Copy className="h-4 w-4 text-gray-500" />
+                <Copy className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               )}
             </button>
           )}
@@ -87,7 +87,7 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
           <div className="ml-4">
             {keys.map((key, index) => (
               <div key={key} className="flex">
-                <span className="text-gray-400 select-none">
+                <span className="text-gray-400 dark:text-gray-500 select-none">
                   {indent}
                 </span>
                 <span className="json-key">"{key}"</span>
@@ -105,7 +105,7 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
               </div>
             ))}
             <div className="flex">
-              <span className="text-gray-400 select-none">
+              <span className="text-gray-400 dark:text-gray-500 select-none">
                 {indent}
               </span>
               <span className="json-bracket">
@@ -128,8 +128,8 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
     if (isMarkdown) {
       return (
         <div className="json-string">
-          <div className="bg-gray-50 border rounded-lg p-4 mt-2">
-            <div className="text-xs text-gray-500 mb-2">Markdown Content:</div>
+          <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-2">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Markdown Content:</div>
             <div className="markdown-content">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {data}

@@ -69,8 +69,8 @@ export default function FileUpload({ onFileUpload }: FileUploadProps) {
       <div
         className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
           isDragging
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 hover:border-gray-400'
+            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+            : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -87,21 +87,21 @@ export default function FileUpload({ onFileUpload }: FileUploadProps) {
         
         <div className="space-y-4">
           <div className="flex justify-center">
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Upload className="h-8 w-8 text-blue-600" />
+            <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+              <Upload className="h-8 w-8 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
               Upload JSON File
             </h3>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               Drag and drop your JSON file here, or click to browse
             </p>
           </div>
           
-          <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+          <div className="flex items-center justify-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
             <FileText className="h-4 w-4" />
             <span>Supports .json files</span>
           </div>
@@ -109,9 +109,9 @@ export default function FileUpload({ onFileUpload }: FileUploadProps) {
       </div>
 
       {error && (
-        <div className="flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center space-x-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <AlertCircle className="h-5 w-5 text-red-500" />
-          <span className="text-red-700">{error}</span>
+          <span className="text-red-700 dark:text-red-400">{error}</span>
         </div>
       )}
     </div>

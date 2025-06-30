@@ -65,11 +65,11 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
   return (
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Edit JSON</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Edit JSON</h3>
         <div className="flex items-center space-x-2">
           <button
             onClick={handleFormat}
-            className="px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+            className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             Format
           </button>
@@ -92,16 +92,16 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
       </div>
 
       {error && (
-        <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div className="flex items-center space-x-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
           <AlertCircle className="h-5 w-5 text-red-500" />
-          <span className="text-red-700">{error}</span>
+          <span className="text-red-700 dark:text-red-400">{error}</span>
         </div>
       )}
 
       {isValid && !error && (
-        <div className="flex items-center space-x-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
           <Check className="h-5 w-5 text-green-500" />
-          <span className="text-green-700">Valid JSON</span>
+          <span className="text-green-700 dark:text-green-400">Valid JSON</span>
         </div>
       )}
 
@@ -109,15 +109,15 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
         <textarea
           value={jsonText}
           onChange={handleTextChange}
-          className={`w-full h-96 pl-16 pr-4 py-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 bg-white ${
-            isValid ? 'border-gray-300' : 'border-red-300'
+          className={`w-full h-96 pl-16 pr-4 py-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white bg-white dark:bg-gray-800 ${
+            isValid ? 'border-gray-300 dark:border-gray-600' : 'border-red-300 dark:border-red-600'
           }`}
           placeholder="Enter JSON data..."
           spellCheck={false}
         />
         
         {/* Line numbers */}
-        <div className="absolute left-0 top-0 w-12 h-full bg-gray-100 border-r border-gray-300 text-xs text-gray-500 font-mono overflow-hidden">
+        <div className="absolute left-0 top-0 w-12 h-full bg-gray-100 dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 font-mono overflow-hidden">
           {jsonText.split('\n').map((_, index) => (
             <div key={index} className="h-6 flex items-center justify-center">
               {index + 1}
@@ -126,7 +126,7 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
         </div>
       </div>
 
-      <div className="text-sm text-gray-600">
+      <div className="text-sm text-gray-600 dark:text-gray-400">
         <p>• Use the Format button to automatically format your JSON</p>
         <p>• The editor validates JSON as you type</p>
         <p>• You can only save when the JSON is valid</p>

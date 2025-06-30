@@ -1,31 +1,26 @@
 # JSON Viewer
 
-A beautiful, modern JSON file viewer built with Next.js that makes reading and editing JSON files easy and enjoyable. Features markdown support for content within JSON strings.
+A beautiful, modern JSON viewer with markdown support, dark mode, and advanced features built with Next.js 14, React, and TypeScript.
 
-## Features
+## ✨ Features
 
-### 🎯 Core Features
-- **File Upload**: Drag and drop or click to upload JSON files
-- **Beautiful Viewer**: Syntax-highlighted JSON with collapsible sections
-- **Markdown Support**: Automatically renders markdown content within JSON strings
-- **Edit Mode**: Full JSON editor with real-time validation
-- **Download**: Save your edited JSON files
-- **Copy to Clipboard**: Copy any JSON section with one click
+### Core Features
+- **JSON File Upload**: Drag & drop or click to upload JSON files
+- **Interactive JSON Viewer**: Expandable/collapsible tree view with syntax highlighting
+- **JSON Editor**: In-place editing with real-time validation
+- **Markdown Support**: Renders markdown content within JSON strings
+- **Download JSON**: Export edited JSON files
 
-### 🎨 User Experience
-- **Responsive Design**: Works perfectly on desktop and mobile
-- **Dark/Light Mode**: Automatically adapts to your system preferences
-- **Collapsible Sections**: Expand/collapse JSON objects and arrays
-- **Line Numbers**: Editor shows line numbers for easy navigation
-- **Real-time Validation**: JSON validation as you type in edit mode
+### Advanced Features
+- **🌙 Dark Mode**: Toggle between light and dark themes
+- **📊 JSON Statistics**: View detailed statistics about your JSON structure
+- **🔍 Search & Filter**: Search through JSON content (coming soon)
+- **⌨️ Keyboard Shortcuts**: Quick access to common actions
+- **📋 Copy to Clipboard**: Copy individual JSON nodes
+- **🎨 Syntax Highlighting**: Beautiful color-coded JSON display
+- **📱 Responsive Design**: Works perfectly on desktop and mobile
 
-### 🔧 Technical Features
-- **TypeScript**: Full type safety
-- **Tailwind CSS**: Modern, responsive styling
-- **React Markdown**: Renders markdown with GitHub Flavored Markdown support
-- **Lucide Icons**: Beautiful, consistent iconography
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 - Node.js 18+ 
@@ -51,85 +46,108 @@ npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Build for Production
+## 🛠️ Available Scripts
 
-```bash
-npm run build
-npm start
-```
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
 
-## Usage
+## 🎯 Usage
 
 ### Uploading JSON Files
-1. Click the upload area or drag and drop a JSON file
-2. The file will be automatically parsed and displayed
-3. If the file contains markdown content, it will be rendered beautifully
+1. Drag and drop a `.json` file onto the upload area, or click to browse
+2. The file will be automatically parsed and displayed in the viewer
 
 ### Viewing JSON
-- **Expand/Collapse**: Click the chevron icons to expand or collapse sections
-- **Copy Sections**: Click the copy icon next to expanded sections
-- **Markdown Content**: Any string containing markdown syntax will be rendered as formatted content
+- Click the chevron icons to expand/collapse objects and arrays
+- Use the copy button to copy individual nodes
+- Markdown content in strings will be rendered automatically
 
 ### Editing JSON
-1. Click the "Edit" button to enter edit mode
+1. Click the "Edit" button to switch to edit mode
 2. Make your changes in the text editor
 3. Use the "Format" button to automatically format your JSON
-4. Click "Save" to apply your changes
-5. Click "View" to return to the viewer
+4. Click "Save" to apply changes (only available when JSON is valid)
 
-### Downloading
-- Click the "Download" button to save your JSON file
-- The file will be downloaded with the original filename or as "data.json"
+### Dark Mode
+- Click the moon/sun icon in the top-right corner to toggle dark mode
+- Your preference is automatically saved
 
-## Markdown Support
+### Keyboard Shortcuts
+- `Ctrl + E` - Edit JSON
+- `Ctrl + V` - View JSON
+- `Ctrl + S` - Download JSON
+- `Ctrl + K` - Clear JSON
+- `Ctrl + /` - Toggle shortcuts panel
 
-The viewer automatically detects and renders markdown content within JSON strings. Supported features include:
+## 🎨 Customization
 
-- **Headers**: `# ## ###`
-- **Bold/Italic**: `**bold**` `*italic*`
-- **Code**: `` `inline code` ``
-- **Code Blocks**: ``` ``` ```
-- **Lists**: `- item` `1. item`
-- **Links**: `[text](url)`
-- **Tables**: GitHub Flavored Markdown tables
-- **Blockquotes**: `> quote`
+### Styling
+The app uses Tailwind CSS for styling. You can customize the appearance by modifying:
+- `app/globals.css` - Global styles and JSON syntax highlighting
+- `tailwind.config.js` - Tailwind configuration
 
-## Example JSON with Markdown
+### Components
+All components are located in `app/components/`:
+- `FileUpload.tsx` - File upload interface
+- `JSONViewer.tsx` - JSON tree viewer
+- `JSONEditor.tsx` - JSON text editor
+- `DarkModeToggle.tsx` - Dark mode toggle
+- `JSONSearch.tsx` - Search functionality
+- `JSONStats.tsx` - JSON statistics
+- `KeyboardShortcuts.tsx` - Keyboard shortcuts panel
 
-```json
-{
-  "title": "Sample Document",
-  "description": "This is a **bold** description with *italic* text",
-  "content": "# Main Heading\n\nThis is a paragraph with `inline code`.\n\n## Subheading\n\n- List item 1\n- List item 2\n\n```javascript\nconsole.log('Hello World');\n```",
-  "metadata": {
-    "author": "John Doe",
-    "tags": ["json", "markdown", "viewer"]
-  }
-}
-```
+## 🔧 Technical Details
 
-## Technologies Used
+### Tech Stack
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Markdown**: React Markdown with remark-gfm
+- **Syntax Highlighting**: Custom CSS classes
 
-- **Next.js 15**: React framework with App Router
-- **React 19**: Latest React with concurrent features
-- **TypeScript**: Type safety and better developer experience
-- **Tailwind CSS**: Utility-first CSS framework
-- **React Markdown**: Markdown rendering
-- **Remark GFM**: GitHub Flavored Markdown support
-- **Lucide React**: Beautiful icons
+### Architecture
+- **Client-side rendering** for interactive features
+- **Component-based architecture** for maintainability
+- **TypeScript** for type safety
+- **Responsive design** with Tailwind CSS
+- **Accessibility** considerations built-in
 
-## Contributing
+## 🚀 Deployment
+
+### Vercel (Recommended)
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Deploy automatically
+
+### Other Platforms
+The app can be deployed to any platform that supports Next.js:
+- Netlify
+- Railway
+- DigitalOcean App Platform
+- AWS Amplify
+
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -am 'Add feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+## 📝 License
 
 This project is licensed under the ISC License.
 
-## Support
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/) for the amazing React framework
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
+- [Lucide React](https://lucide.dev/) for the beautiful icons
+- [React Markdown](https://github.com/remarkjs/react-markdown) for markdown rendering
+
+## 📞 Support
 
 If you encounter any issues or have questions, please open an issue on GitHub. 
