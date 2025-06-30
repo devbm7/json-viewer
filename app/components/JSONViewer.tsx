@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize, Eye, Code } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface JSONViewerProps {
   data: any
@@ -29,6 +30,7 @@ interface JSONNodeProps {
 }
 
 function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery, onNavigate, currentPath, isFocused, onFocus, expandedPaths }: JSONNodeProps) {
+  const { currentTheme } = useTheme()
   const [isExpanded, setIsExpanded] = useState(level < 2)
   const [copied, setCopied] = useState(false)
   const [markdownViewMode, setMarkdownViewMode] = useState<'compiled' | 'raw'>('compiled')
@@ -44,6 +46,17 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
   const isArray = Array.isArray(data)
   const isString = typeof data === 'string'
   const isMarkdown = isString && (data.includes('#') || data.includes('**') || data.includes('`') || data.includes('['))
+
+  // Apply theme colors
+  const themeStyles = {
+    jsonKey: { color: currentTheme.colors.jsonKey },
+    jsonString: { color: currentTheme.colors.jsonString },
+    jsonNumber: { color: currentTheme.colors.jsonNumber },
+    jsonBoolean: { color: currentTheme.colors.jsonBoolean },
+    jsonNull: { color: currentTheme.colors.jsonNull },
+    jsonBracket: { color: currentTheme.colors.jsonBracket },
+    jsonComma: { color: currentTheme.colors.jsonComma }
+  }
 
   // Check if this node matches search results
   const isSearchMatch = searchResults?.some(result => result.path === path)
@@ -144,7 +157,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
             )}
           </button>
           
-          <span className="json-bracket flex-shrink-0">{isArray ? '[' : '{'}</span>
+          <span className="json-bracket flex-shrink-0" style={themeStyles.jsonBracket}>{isArray ? '[' : '{'}</span>
           
           {!isEmpty && shouldCollapse && (
             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
@@ -181,8 +194,8 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
                   <span className="text-gray-400 dark:text-gray-500 select-none flex-shrink-0">
                     {indent}
                   </span>
-                  <span className="json-key flex-shrink-0">"{highlightText(key)}"</span>
-                  <span className="json-comma flex-shrink-0">: </span>
+                  <span className="json-key flex-shrink-0" style={themeStyles.jsonKey}>"{highlightText(key)}"</span>
+                  <span className="json-comma flex-shrink-0" style={themeStyles.jsonComma}>: </span>
                   <div className="flex-1">
                     <JSONNode
                       data={data[key]}
@@ -200,7 +213,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
                     />
                   </div>
                   {index < keys.length - 1 && (
-                    <span className="json-comma flex-shrink-0">,</span>
+                    <span className="json-comma flex-shrink-0" style={themeStyles.jsonComma}>,</span>
                   )}
                 </div>
               )
@@ -209,7 +222,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
               <span className="text-gray-400 dark:text-gray-500 select-none flex-shrink-0">
                 {indent}
               </span>
-              <span className="json-bracket flex-shrink-0">
+              <span className="json-bracket flex-shrink-0" style={themeStyles.jsonBracket}>
                 {isArray ? ']' : '}'}
               </span>
             </div>
@@ -217,7 +230,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
         )}
 
         {shouldCollapse && (
-          <span className="json-bracket flex-shrink-0">
+          <span className="json-bracket flex-shrink-0" style={themeStyles.jsonBracket}>
             {isArray ? ']' : '}'}
           </span>
         )}
@@ -276,26 +289,27 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
     }
     
     return (
-      <span className="json-string" data-path={path}>"{highlightText(data)}"</span>
+      <span className="json-string" data-path={path} style={themeStyles.jsonString}>"{highlightText(data)}"</span>
     )
   }
 
   if (typeof data === 'number') {
-    return <span className="json-number" data-path={path}>{highlightText(String(data))}</span>
+    return <span className="json-number" data-path={path} style={themeStyles.jsonNumber}>{highlightText(String(data))}</span>
   }
 
   if (typeof data === 'boolean') {
-    return <span className="json-boolean" data-path={path}>{highlightText(data.toString())}</span>
+    return <span className="json-boolean" data-path={path} style={themeStyles.jsonBoolean}>{highlightText(data.toString())}</span>
   }
 
   if (data === null) {
-    return <span className="json-null" data-path={path}>{highlightText('null')}</span>
+    return <span className="json-null" data-path={path} style={themeStyles.jsonNull}>{highlightText('null')}</span>
   }
 
   return <span data-path={path}>{highlightText(String(data))}</span>
 }
 
 export default function JSONViewer({ data, searchResults, searchQuery, onNavigate, currentPath }: JSONViewerProps) {
+  const { currentTheme } = useTheme()
   const [expandAll, setExpandAll] = useState(false)
   const [collapseAll, setCollapseAll] = useState(false)
   const [focusedPath, setFocusedPath] = useState('')
@@ -450,7 +464,13 @@ export default function JSONViewer({ data, searchResults, searchQuery, onNavigat
         </div>
       </div>
       
-      <div className="json-viewer text-sm w-full max-w-full overflow-hidden">
+      <div 
+        className="json-viewer text-sm w-full max-w-full overflow-hidden"
+        style={{ 
+          backgroundColor: currentTheme.colors.background,
+          color: currentTheme.colors.foreground
+        }}
+      >
         <JSONNode 
           data={data} 
           forceExpanded={expandAll ? true : undefined}

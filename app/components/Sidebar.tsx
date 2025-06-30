@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { ChevronDown, ChevronRight, Settings, Search, FileText, Download, Palette, Keyboard } from 'lucide-react'
+import ThemeSelector from './ThemeSelector'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface SidebarProps {
   onToggleSearch: () => void
@@ -61,6 +63,7 @@ export default function Sidebar({
   isCollapsed: externalIsCollapsed,
   onToggleCollapse
 }: SidebarProps) {
+  const { isDark, currentTheme, setCurrentTheme } = useTheme()
   const [internalIsCollapsed, setInternalIsCollapsed] = useState(false)
   
   const isCollapsed = externalIsCollapsed !== undefined ? externalIsCollapsed : internalIsCollapsed
@@ -130,6 +133,17 @@ export default function Sidebar({
           </Section>
 
           <Section title="Settings" icon={Settings}>
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-1">
+                Theme
+              </div>
+              <ThemeSelector 
+                isDark={isDark}
+                onThemeChange={setCurrentTheme}
+                currentTheme={currentTheme}
+              />
+            </div>
+            
             <button
               onClick={onKeyboardShortcuts}
               className="w-full flex items-center space-x-2 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

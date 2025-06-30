@@ -34,62 +34,15 @@ body {
   word-wrap: break-word;
 }
 
-.json-key {
-  color: #9cdcfe;
-}
-
-.dark .json-key {
-  color: #4ec9b0;
-}
-
-.json-string {
-  color: #ce9178;
-}
-
-.dark .json-string {
-  color: #d69d85;
-}
-
-.json-number {
-  color: #b5cea8;
-}
-
-.dark .json-number {
-  color: #b8d7a3;
-}
-
-.json-boolean {
-  color: #569cd6;
-}
-
-.dark .json-boolean {
-  color: #4fc1ff;
-}
-
-.json-null {
-  color: #569cd6;
-}
-
-.dark .json-null {
-  color: #4fc1ff;
-}
-
-.json-bracket {
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.dark .json-bracket {
-  color: #9ca3af;
-}
-
+/* JSON syntax highlighting is now handled by theme context */
+.json-key,
+.json-string,
+.json-number,
+.json-boolean,
+.json-null,
+.json-bracket,
 .json-comma {
-  color: #6b7280;
   font-weight: 500;
-}
-
-.dark .json-comma {
-  color: #9ca3af;
 }
 
 /* Search highlighting styles */

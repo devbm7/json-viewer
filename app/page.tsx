@@ -16,6 +16,7 @@ import BreadcrumbNavigation from './components/BreadcrumbNavigation'
 import GoToPath from './components/GoToPath'
 import JSONMiniMap from './components/JSONMiniMap'
 import Sidebar from './components/Sidebar'
+import { useTheme } from './contexts/ThemeContext'
 
 interface SearchResult {
   path: string
@@ -34,6 +35,7 @@ interface ValidationResult {
 }
 
 export default function Home() {
+  const { isDark, currentTheme, setCurrentTheme } = useTheme()
   const [jsonData, setJsonData] = useState<any>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isSideBySide, setIsSideBySide] = useState(false)
