@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Save, X, AlertCircle, Check } from 'lucide-react'
 
 interface JSONEditorProps {
@@ -13,6 +13,8 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
   const [jsonText, setJsonText] = useState('')
   const [error, setError] = useState<string>('')
   const [isValid, setIsValid] = useState(true)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const lineNumbersRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     try {
@@ -38,6 +40,12 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
     } catch (err) {
       setError('Invalid JSON format')
       setIsValid(false)
+    }
+  }
+
+  const handleScroll = () => {
+    if (textareaRef.current && lineNumbersRef.current) {
+      lineNumbersRef.current.scrollTop = textareaRef.current.scrollTop
     }
   }
 
@@ -107,8 +115,10 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
 
       <div className="relative">
         <textarea
+          ref={textareaRef}
           value={jsonText}
           onChange={handleTextChange}
+          onScroll={handleScroll}
           className={`w-full h-96 pl-16 pr-4 py-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white bg-white dark:bg-gray-800 ${
             isValid ? 'border-gray-300 dark:border-gray-600' : 'border-red-300 dark:border-red-600'
           }`}
@@ -117,7 +127,10 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
         />
         
         {/* Line numbers */}
-        <div className="absolute left-0 top-0 w-12 h-full bg-gray-100 dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 font-mono overflow-hidden">
+        <div 
+          ref={lineNumbersRef}
+          className="absolute left-0 top-0 w-12 h-96 bg-gray-100 dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 font-mono overflow-hidden"
+        >
           {jsonText.split('\n').map((_, index) => (
             <div key={index} className="h-6 flex items-center justify-center">
               {index + 1}

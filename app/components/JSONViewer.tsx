@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, Copy, Check } from 'lucide-react'
+import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -13,11 +13,17 @@ interface JSONNodeProps {
   data: any
   level?: number
   path?: string
+  forceExpanded?: boolean
+  forceCollapsed?: boolean
 }
 
-function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
+function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed }: JSONNodeProps) {
   const [isExpanded, setIsExpanded] = useState(level < 2)
   const [copied, setCopied] = useState(false)
+
+  // Override local state if force flags are set
+  const shouldExpand = forceExpanded !== undefined ? forceExpanded : isExpanded
+  const shouldCollapse = forceCollapsed !== undefined ? forceCollapsed : !isExpanded
 
   const indent = '  '.repeat(level)
   const isObject = data !== null && typeof data === 'object'
@@ -36,7 +42,9 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
   }
 
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded)
+    if (forceExpanded === undefined && forceCollapsed === undefined) {
+      setIsExpanded(!isExpanded)
+    }
   }
 
   if (isObject) {
@@ -49,11 +57,11 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
           <button
             onClick={toggleExpanded}
             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mr-1 text-gray-600 dark:text-gray-400"
-            disabled={isEmpty}
+            disabled={isEmpty || forceExpanded !== undefined || forceCollapsed !== undefined}
           >
             {isEmpty ? (
               <div className="w-4 h-4" />
-            ) : isExpanded ? (
+            ) : shouldExpand ? (
               <ChevronDown className="w-4 h-4 text-gray-600 dark:text-gray-400" />
             ) : (
               <ChevronRight className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -62,13 +70,13 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
           
           <span className="json-bracket">{isArray ? '[' : '{'}</span>
           
-          {!isEmpty && !isExpanded && (
+          {!isEmpty && shouldCollapse && (
             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
               {isArray ? `${keys.length} items` : `${keys.length} properties`}
             </span>
           )}
           
-          {!isEmpty && isExpanded && (
+          {!isEmpty && shouldExpand && (
             <button
               onClick={handleCopy}
               className="ml-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
@@ -83,7 +91,7 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
           )}
         </div>
 
-        {isExpanded && (
+        {shouldExpand && (
           <div className="ml-4">
             {keys.map((key, index) => (
               <div key={key} className="flex">
@@ -97,6 +105,8 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
                     data={data[key]}
                     level={level + 1}
                     path={`${path}.${key}`}
+                    forceExpanded={forceExpanded}
+                    forceCollapsed={forceCollapsed}
                   />
                 </div>
                 {index < keys.length - 1 && (
@@ -115,7 +125,7 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
           </div>
         )}
 
-        {!isExpanded && (
+        {shouldCollapse && (
           <span className="json-bracket">
             {isArray ? ']' : '}'}
           </span>
@@ -161,10 +171,63 @@ function JSONNode({ data, level = 0, path = '' }: JSONNodeProps) {
 }
 
 export default function JSONViewer({ data }: JSONViewerProps) {
+  const [expandAll, setExpandAll] = useState(false)
+  const [collapseAll, setCollapseAll] = useState(false)
+
+  const handleExpandAll = () => {
+    setExpandAll(true)
+    setCollapseAll(false)
+  }
+
+  const handleCollapseAll = () => {
+    setCollapseAll(true)
+    setExpandAll(false)
+  }
+
+  const handleReset = () => {
+    setExpandAll(false)
+    setCollapseAll(false)
+  }
+
   return (
     <div className="p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">JSON Viewer</h3>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleExpandAll}
+            className="flex items-center space-x-2 px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+            title="Expand all nodes"
+          >
+            <Expand className="h-4 w-4" />
+            <span>Expand All</span>
+          </button>
+          <button
+            onClick={handleCollapseAll}
+            className="flex items-center space-x-2 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            title="Collapse all nodes"
+          >
+            <Minimize className="h-4 w-4" />
+            <span>Collapse All</span>
+          </button>
+          {(expandAll || collapseAll) && (
+            <button
+              onClick={handleReset}
+              className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              title="Reset to default state"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+      </div>
+      
       <div className="json-viewer text-sm">
-        <JSONNode data={data} />
+        <JSONNode 
+          data={data} 
+          forceExpanded={expandAll ? true : undefined}
+          forceCollapsed={collapseAll ? true : undefined}
+        />
       </div>
     </div>
   )
