@@ -1,21 +1,49 @@
 'use client'
 
 import { useState } from 'react'
-import { Upload, Download, Edit3, Eye, FileText, X } from 'lucide-react'
+import { Upload, Download, Edit3, Eye, FileText, X, Search, CheckCircle } from 'lucide-react'
 import JSONViewer from './components/JSONViewer'
 import JSONEditor from './components/JSONEditor'
 import FileUpload from './components/FileUpload'
 import DarkModeToggle from './components/DarkModeToggle'
+import AdvancedSearch from './components/AdvancedSearch'
+import JSONValidator from './components/JSONValidator'
+import JSONStats from './components/JSONStats'
+import SearchResults from './components/SearchResults'
+
+interface SearchResult {
+  path: string
+  value: any
+  type: string
+  parentKey?: string
+}
+
+interface ValidationResult {
+  isValid: boolean
+  errors: string[]
+  warnings: string[]
+  formatted: string
+  size: number
+  estimatedMemory: number
+}
 
 export default function Home() {
   const [jsonData, setJsonData] = useState<any>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [fileName, setFileName] = useState<string>('')
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [validationResult, setValidationResult] = useState<ValidationResult | null>(null)
+  const [showSearch, setShowSearch] = useState(false)
+  const [showValidation, setShowValidation] = useState(false)
+  const [showSearchResults, setShowSearchResults] = useState(false)
 
   const handleFileUpload = (data: any, name: string) => {
     setJsonData(data)
     setFileName(name)
     setIsEditing(false)
+    setSearchResults([])
+    setSearchQuery('')
   }
 
   const handleEdit = () => {
@@ -45,6 +73,40 @@ export default function Home() {
     setJsonData(null)
     setFileName('')
     setIsEditing(false)
+    setSearchResults([])
+    setSearchQuery('')
+    setValidationResult(null)
+  }
+
+  const handleSearchResults = (results: SearchResult[], query: string) => {
+    setSearchResults(results.slice(0, 10)) // Limit to first 10 results
+    setSearchQuery(query)
+    setShowSearchResults(results.length > 0)
+  }
+
+  const handleSearchClear = () => {
+    setSearchResults([])
+    setSearchQuery('')
+    setShowSearchResults(false)
+  }
+
+  const handleValidated = (result: ValidationResult) => {
+    setValidationResult(result)
+  }
+
+  const handleFormat = (formatted: string) => {
+    try {
+      const parsed = JSON.parse(formatted)
+      setJsonData(parsed)
+    } catch (error) {
+      console.error('Failed to parse formatted JSON:', error)
+    }
+  }
+
+  const handleNavigateToPath = (path: string) => {
+    // For now, just expand the search to show the path
+    // In a more advanced implementation, you could scroll to the specific node
+    console.log('Navigate to path:', path)
   }
 
   return (
@@ -59,7 +121,7 @@ export default function Home() {
             <DarkModeToggle />
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            Upload, view, edit, and download JSON files with markdown support
+            Upload, view, edit, and download JSON files with advanced search and validation
           </p>
         </header>
 
@@ -102,6 +164,30 @@ export default function Home() {
                   )}
                   
                   <button
+                    onClick={() => setShowSearch(!showSearch)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      showSearch 
+                        ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
+                        : 'bg-gray-500 text-white hover:bg-gray-600'
+                    }`}
+                  >
+                    <Search className="h-4 w-4" />
+                    <span>Search</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowValidation(!showValidation)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      showValidation 
+                        ? 'bg-green-500 text-white hover:bg-green-600' 
+                        : 'bg-gray-500 text-white hover:bg-gray-600'
+                    }`}
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    <span>Validate</span>
+                  </button>
+                  
+                  <button
                     onClick={handleDownload}
                     className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
                   >
@@ -120,6 +206,38 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Advanced Search */}
+            {showSearch && (
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                <AdvancedSearch 
+                  data={jsonData}
+                  onSearchResults={handleSearchResults}
+                  onClear={handleSearchClear}
+                />
+              </div>
+            )}
+
+            {/* Search Results */}
+            {showSearchResults && searchResults.length > 0 && (
+              <SearchResults 
+                results={searchResults}
+                query={searchQuery}
+                onNavigateToPath={handleNavigateToPath}
+              />
+            )}
+
+            {/* JSON Validation */}
+            {showValidation && (
+              <JSONValidator 
+                data={jsonData}
+                onValidated={handleValidated}
+                onFormat={handleFormat}
+              />
+            )}
+
+            {/* JSON Statistics */}
+            <JSONStats data={jsonData} />
+
             {/* JSON Content */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
               {isEditing ? (
@@ -129,7 +247,11 @@ export default function Home() {
                   onCancel={() => setIsEditing(false)}
                 />
               ) : (
-                <JSONViewer data={jsonData} />
+                <JSONViewer 
+                  data={jsonData} 
+                  searchResults={searchResults}
+                  searchQuery={searchQuery}
+                />
               )}
             </div>
           </div>

@@ -81,6 +81,106 @@ body {
   color: #9ca3af;
 }
 
+/* Search highlighting styles */
+.json-node {
+  transition: background-color 0.2s ease;
+}
+
+.json-node.search-match {
+  background-color: rgba(251, 191, 36, 0.1);
+  border-left: 4px solid #f59e0b;
+  padding-left: 0.5rem;
+  margin-left: -0.5rem;
+}
+
+.dark .json-node.search-match {
+  background-color: rgba(251, 191, 36, 0.15);
+  border-left-color: #fbbf24;
+}
+
+.json-node.search-parent {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-left: 2px solid #3b82f6;
+  padding-left: 0.25rem;
+  margin-left: -0.25rem;
+}
+
+.dark .json-node.search-parent {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-left-color: #60a5fa;
+}
+
+/* Search result highlighting */
+mark {
+  background-color: #fef3c7;
+  color: #92400e;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.dark mark {
+  background-color: #78350f;
+  color: #fbbf24;
+}
+
+/* Validation status indicators */
+.validation-valid {
+  border-color: #10b981;
+}
+
+.validation-invalid {
+  border-color: #ef4444;
+}
+
+.validation-warning {
+  border-color: #f59e0b;
+}
+
+/* Smooth transitions for all interactive elements */
+button, input, select, textarea {
+  transition: all 0.2s ease;
+}
+
+/* Custom scrollbar for search results */
+.search-results-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
+}
+
+.dark .search-results-scroll {
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+.search-results-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-results-scroll::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.dark .search-results-scroll::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.search-results-scroll::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.dark .search-results-scroll::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.search-results-scroll::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.dark .search-results-scroll::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
 .markdown-content {
   line-height: 1.6;
 }

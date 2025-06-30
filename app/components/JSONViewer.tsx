@@ -7,6 +7,8 @@ import remarkGfm from 'remark-gfm'
 
 interface JSONViewerProps {
   data: any
+  searchResults?: Array<{ path: string; value: any; type: string; parentKey?: string }>
+  searchQuery?: string
 }
 
 interface JSONNodeProps {
@@ -15,9 +17,11 @@ interface JSONNodeProps {
   path?: string
   forceExpanded?: boolean
   forceCollapsed?: boolean
+  searchResults?: Array<{ path: string; value: any; type: string; parentKey?: string }>
+  searchQuery?: string
 }
 
-function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed }: JSONNodeProps) {
+function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery }: JSONNodeProps) {
   const [isExpanded, setIsExpanded] = useState(level < 2)
   const [copied, setCopied] = useState(false)
 
@@ -30,6 +34,26 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed }:
   const isArray = Array.isArray(data)
   const isString = typeof data === 'string'
   const isMarkdown = isString && (data.includes('#') || data.includes('**') || data.includes('`') || data.includes('['))
+
+  // Check if this node matches search results
+  const isSearchMatch = searchResults?.some(result => result.path === path)
+  const isSearchParent = searchResults?.some(result => result.path.startsWith(path + '.') || result.path.startsWith(path + '['))
+  
+  // Highlight text if it matches search query
+  const highlightText = (text: string) => {
+    if (!searchQuery || !text.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return text
+    }
+    
+    const parts = text.split(new RegExp(`(${searchQuery})`, 'gi'))
+    return parts.map((part, index) => 
+      part.toLowerCase() === searchQuery.toLowerCase() ? (
+        <mark key={index}>
+          {part}
+        </mark>
+      ) : part
+    )
+  }
 
   const handleCopy = async () => {
     try {
@@ -52,7 +76,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed }:
     const isEmpty = keys.length === 0
 
     return (
-      <div className="json-node">
+      <div className={`json-node ${isSearchMatch ? 'search-match' : ''} ${isSearchParent ? 'search-parent' : ''}`}>
         <div className="flex items-center">
           <button
             onClick={toggleExpanded}
@@ -93,27 +117,35 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed }:
 
         {shouldExpand && (
           <div className="ml-4">
-            {keys.map((key, index) => (
-              <div key={key} className="flex">
-                <span className="text-gray-400 dark:text-gray-500 select-none">
-                  {indent}
-                </span>
-                <span className="json-key">"{key}"</span>
-                <span className="json-comma">: </span>
-                <div className="flex-1">
-                  <JSONNode
-                    data={data[key]}
-                    level={level + 1}
-                    path={`${path}.${key}`}
-                    forceExpanded={forceExpanded}
-                    forceCollapsed={forceCollapsed}
-                  />
+            {keys.map((key, index) => {
+              const childPath = `${path}.${key}`
+              const isChildMatch = searchResults?.some(result => result.path === childPath)
+              const isChildParent = searchResults?.some(result => result.path.startsWith(childPath + '.') || result.path.startsWith(childPath + '['))
+              
+              return (
+                <div key={key} className={`flex ${isChildMatch ? 'search-match' : ''} ${isChildParent ? 'search-parent' : ''}`}>
+                  <span className="text-gray-400 dark:text-gray-500 select-none">
+                    {indent}
+                  </span>
+                  <span className="json-key">"{highlightText(key)}"</span>
+                  <span className="json-comma">: </span>
+                  <div className="flex-1">
+                    <JSONNode
+                      data={data[key]}
+                      level={level + 1}
+                      path={childPath}
+                      forceExpanded={forceExpanded}
+                      forceCollapsed={forceCollapsed}
+                      searchResults={searchResults}
+                      searchQuery={searchQuery}
+                    />
+                  </div>
+                  {index < keys.length - 1 && (
+                    <span className="json-comma">,</span>
+                  )}
                 </div>
-                {index < keys.length - 1 && (
-                  <span className="json-comma">,</span>
-                )}
-              </div>
-            ))}
+              )
+            })}
             <div className="flex">
               <span className="text-gray-400 dark:text-gray-500 select-none">
                 {indent}
@@ -151,26 +183,26 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed }:
     }
     
     return (
-      <span className="json-string">"{data}"</span>
+      <span className="json-string">"{highlightText(data)}"</span>
     )
   }
 
   if (typeof data === 'number') {
-    return <span className="json-number">{data}</span>
+    return <span className="json-number">{highlightText(String(data))}</span>
   }
 
   if (typeof data === 'boolean') {
-    return <span className="json-boolean">{data.toString()}</span>
+    return <span className="json-boolean">{highlightText(data.toString())}</span>
   }
 
   if (data === null) {
-    return <span className="json-null">null</span>
+    return <span className="json-null">{highlightText('null')}</span>
   }
 
-  return <span>{String(data)}</span>
+  return <span>{highlightText(String(data))}</span>
 }
 
-export default function JSONViewer({ data }: JSONViewerProps) {
+export default function JSONViewer({ data, searchResults, searchQuery }: JSONViewerProps) {
   const [expandAll, setExpandAll] = useState(false)
   const [collapseAll, setCollapseAll] = useState(false)
 
@@ -227,6 +259,8 @@ export default function JSONViewer({ data }: JSONViewerProps) {
           data={data} 
           forceExpanded={expandAll ? true : undefined}
           forceCollapsed={collapseAll ? true : undefined}
+          searchResults={searchResults}
+          searchQuery={searchQuery}
         />
       </div>
     </div>
