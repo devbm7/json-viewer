@@ -8,16 +8,23 @@ interface KeyboardShortcutsProps {
   onView: () => void
   onDownload: () => void
   onClear: () => void
+  isOpen?: boolean
+  onToggle?: () => void
 }
 
-export default function KeyboardShortcuts({ onEdit, onView, onDownload, onClear }: KeyboardShortcutsProps) {
-  const [isOpen, setIsOpen] = useState(false)
+export default function KeyboardShortcuts({ onEdit, onView, onDownload, onClear, isOpen: externalIsOpen, onToggle }: KeyboardShortcutsProps) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false)
+  
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen
+  const setIsOpen = onToggle || setInternalIsOpen
 
   const shortcuts = [
     { key: 'Ctrl + E', description: 'Edit JSON', action: onEdit },
     { key: 'Ctrl + V', description: 'View JSON', action: onView },
     { key: 'Ctrl + S', description: 'Download JSON', action: onDownload },
     { key: 'Ctrl + K', description: 'Clear JSON', action: onClear },
+    { key: 'Ctrl + F', description: 'Toggle search', action: () => {} },
+    { key: 'Ctrl + R', description: 'Reset view', action: () => {} },
     { key: 'Ctrl + /', description: 'Toggle shortcuts', action: () => setIsOpen(!isOpen) },
   ]
 

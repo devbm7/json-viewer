@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload, Download, Edit3, Eye, FileText, X, Search, CheckCircle } from 'lucide-react'
 import JSONViewer from './components/JSONViewer'
 import JSONEditor from './components/JSONEditor'
@@ -10,6 +10,11 @@ import AdvancedSearch from './components/AdvancedSearch'
 import JSONValidator from './components/JSONValidator'
 import JSONStats from './components/JSONStats'
 import SearchResults from './components/SearchResults'
+import KeyboardShortcuts from './components/KeyboardShortcuts'
+import BreadcrumbNavigation from './components/BreadcrumbNavigation'
+import GoToPath from './components/GoToPath'
+import JSONMiniMap from './components/JSONMiniMap'
+import Sidebar from './components/Sidebar'
 
 interface SearchResult {
   path: string
@@ -37,6 +42,9 @@ export default function Home() {
   const [showSearch, setShowSearch] = useState(false)
   const [showValidation, setShowValidation] = useState(false)
   const [showSearchResults, setShowSearchResults] = useState(false)
+  const [currentPath, setCurrentPath] = useState('')
+  const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const handleFileUpload = (data: any, name: string) => {
     setJsonData(data)
@@ -104,14 +112,102 @@ export default function Home() {
   }
 
   const handleNavigateToPath = (path: string) => {
-    // For now, just expand the search to show the path
+    setCurrentPath(path)
     // In a more advanced implementation, you could scroll to the specific node
     console.log('Navigate to path:', path)
   }
 
+  const handleKeyboardShortcuts = () => {
+    setShowKeyboardShortcuts(!showKeyboardShortcuts)
+  }
+
+  // Extract all available paths for GoToPath component
+  const extractPaths = (obj: any, path: string = ''): string[] => {
+    const paths: string[] = []
+    
+    if (obj === null || typeof obj !== 'object') {
+      return paths
+    }
+
+    if (Array.isArray(obj)) {
+      obj.forEach((item, index) => {
+        const childPath = path ? `${path}[${index}]` : `[${index}]`
+        paths.push(childPath)
+        paths.push(...extractPaths(item, childPath))
+      })
+    } else {
+      Object.keys(obj).forEach(key => {
+        const childPath = path ? `${path}.${key}` : key
+        paths.push(childPath)
+        paths.push(...extractPaths(obj[key], childPath))
+      })
+    }
+    
+    return paths
+  }
+
+  const availablePaths = jsonData ? extractPaths(jsonData) : []
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'e':
+            e.preventDefault()
+            if (jsonData && !isEditing) handleEdit()
+            break
+          case 'v':
+            e.preventDefault()
+            if (jsonData && isEditing) handleView()
+            break
+          case 's':
+            e.preventDefault()
+            if (jsonData) handleDownload()
+            break
+          case 'k':
+            e.preventDefault()
+            if (jsonData) handleClear()
+            break
+          case 'f':
+            e.preventDefault()
+            if (jsonData) setShowSearch(!showSearch)
+            break
+          case '/':
+            e.preventDefault()
+            setShowKeyboardShortcuts(!showKeyboardShortcuts)
+            break
+          case 'r':
+            e.preventDefault()
+            if (jsonData) handleNavigateToPath('')
+            break
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [jsonData, isEditing, showSearch, showKeyboardShortcuts])
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors w-full max-w-full overflow-hidden">
-      <div className="container mx-auto px-4 py-8 w-full max-w-full overflow-hidden">
+      {/* Sidebar */}
+      {jsonData && (
+        <Sidebar
+          onToggleSearch={() => setShowSearch(!showSearch)}
+          onToggleValidation={() => setShowValidation(!showValidation)}
+          onDownload={handleDownload}
+          onClear={handleClear}
+          showSearch={showSearch}
+          showValidation={showValidation}
+          onKeyboardShortcuts={handleKeyboardShortcuts}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
+      )}
+
+      <div className={`${jsonData ? (sidebarCollapsed ? 'ml-12' : 'ml-64') : ''} transition-all duration-300`}>
+        <div className="container mx-auto px-4 py-8 w-full max-w-full overflow-hidden">
         <header className="text-center mb-8 w-full max-w-full overflow-hidden">
           <div className="flex items-center justify-between mb-4 min-w-0">
             <div></div>
@@ -149,6 +245,7 @@ export default function Home() {
                     <button
                       onClick={handleEdit}
                       className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                      title="Edit JSON (Ctrl+E)"
                     >
                       <Edit3 className="h-4 w-4" />
                       <span>Edit</span>
@@ -157,6 +254,7 @@ export default function Home() {
                     <button
                       onClick={handleView}
                       className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                      title="View JSON (Ctrl+V)"
                     >
                       <Eye className="h-4 w-4" />
                       <span>View</span>
@@ -170,6 +268,7 @@ export default function Home() {
                         ? 'bg-yellow-500 text-white hover:bg-yellow-600' 
                         : 'bg-gray-500 text-white hover:bg-gray-600'
                     }`}
+                    title="Search JSON (Ctrl+F)"
                   >
                     <Search className="h-4 w-4" />
                     <span>Search</span>
@@ -182,6 +281,7 @@ export default function Home() {
                         ? 'bg-green-500 text-white hover:bg-green-600' 
                         : 'bg-gray-500 text-white hover:bg-gray-600'
                     }`}
+                    title="Validate JSON"
                   >
                     <CheckCircle className="h-4 w-4" />
                     <span>Validate</span>
@@ -190,6 +290,7 @@ export default function Home() {
                   <button
                     onClick={handleDownload}
                     className="flex items-center space-x-2 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    title="Download JSON (Ctrl+S)"
                   >
                     <Download className="h-4 w-4" />
                     <span>Download</span>
@@ -198,6 +299,7 @@ export default function Home() {
                   <button
                     onClick={handleClear}
                     className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    title="Clear JSON (Ctrl+K)"
                   >
                     <X className="h-4 w-4" />
                     <span>Clear</span>
@@ -238,6 +340,42 @@ export default function Home() {
             {/* JSON Statistics */}
             <JSONStats data={jsonData} />
 
+            {/* Navigation Tools */}
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 w-full max-w-full overflow-hidden">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h3>
+                <div className="flex items-center space-x-2">
+                  <GoToPath onNavigate={handleNavigateToPath} availablePaths={availablePaths} />
+                </div>
+              </div>
+              
+              <BreadcrumbNavigation path={currentPath} onNavigate={handleNavigateToPath} />
+              
+              {currentPath && (
+                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-blue-700 dark:text-blue-300">
+                      Current location: <code className="font-mono">{currentPath}</code>
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleNavigateToPath('')}
+                        className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                      >
+                        Go to root
+                      </button>
+                      <button
+                        onClick={() => handleNavigateToPath('')}
+                        className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                      >
+                        Reset View
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* JSON Content */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full max-w-full overflow-hidden">
               {isEditing ? (
@@ -251,12 +389,34 @@ export default function Home() {
                   data={jsonData} 
                   searchResults={searchResults}
                   searchQuery={searchQuery}
+                  onNavigate={handleNavigateToPath}
+                  currentPath={currentPath}
                 />
               )}
             </div>
           </div>
         )}
+        </div>
       </div>
+
+      {/* Mini Map */}
+      {jsonData && !isEditing && (
+        <JSONMiniMap 
+          data={jsonData}
+          onNavigate={handleNavigateToPath}
+          currentPath={currentPath}
+        />
+      )}
+
+      {/* Keyboard Shortcuts */}
+      <KeyboardShortcuts
+        onEdit={handleEdit}
+        onView={handleView}
+        onDownload={handleDownload}
+        onClear={handleClear}
+        isOpen={showKeyboardShortcuts}
+        onToggle={() => setShowKeyboardShortcuts(!showKeyboardShortcuts)}
+      />
     </div>
   )
 } 

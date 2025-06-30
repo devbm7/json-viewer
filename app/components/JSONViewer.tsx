@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize, Eye, Code } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -9,6 +9,8 @@ interface JSONViewerProps {
   data: any
   searchResults?: Array<{ path: string; value: any; type: string; parentKey?: string }>
   searchQuery?: string
+  onNavigate?: (path: string) => void
+  currentPath?: string
 }
 
 interface JSONNodeProps {
@@ -19,16 +21,23 @@ interface JSONNodeProps {
   forceCollapsed?: boolean
   searchResults?: Array<{ path: string; value: any; type: string; parentKey?: string }>
   searchQuery?: string
+  onNavigate?: (path: string) => void
+  currentPath?: string
+  isFocused?: boolean
+  onFocus?: (path: string) => void
+  expandedPaths?: Set<string>
 }
 
-function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery }: JSONNodeProps) {
+function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery, onNavigate, currentPath, isFocused, onFocus, expandedPaths }: JSONNodeProps) {
   const [isExpanded, setIsExpanded] = useState(level < 2)
   const [copied, setCopied] = useState(false)
   const [markdownViewMode, setMarkdownViewMode] = useState<'compiled' | 'raw'>('compiled')
 
-  // Override local state if force flags are set
-  const shouldExpand = forceExpanded !== undefined ? forceExpanded : isExpanded
-  const shouldCollapse = forceCollapsed !== undefined ? forceCollapsed : !isExpanded
+  // Override local state if force flags are set or if path is in expandedPaths
+  // But allow manual toggle to override expandedPaths
+  const shouldExpand = forceExpanded !== undefined ? forceExpanded : 
+                      (expandedPaths?.has(path) && level < 2) ? true : isExpanded
+  const shouldCollapse = forceCollapsed !== undefined ? forceCollapsed : !shouldExpand
 
   const indent = '  '.repeat(level)
   const isObject = data !== null && typeof data === 'object'
@@ -69,15 +78,57 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
   const toggleExpanded = () => {
     if (forceExpanded === undefined && forceCollapsed === undefined) {
       setIsExpanded(!isExpanded)
+      // If manually expanding, add to expandedPaths
+      if (!isExpanded && expandedPaths) {
+        const newExpandedPaths = new Set(expandedPaths)
+        newExpandedPaths.add(path)
+        // Note: We can't directly update expandedPaths here as it's passed as prop
+        // The parent component should handle this
+      }
     }
   }
 
   if (isObject) {
-    const keys = Object.keys(data)
+    const keys = Array.isArray(data) ? data.map((_, index) => index.toString()) : Object.keys(data)
     const isEmpty = keys.length === 0
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (!onNavigate) return
+
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault()
+          onNavigate(path)
+          break
+        case 'ArrowRight':
+          if (!isExpanded && keys.length > 0) {
+            e.preventDefault()
+            setIsExpanded(true)
+          }
+          break
+        case 'ArrowLeft':
+          if (isExpanded) {
+            e.preventDefault()
+            setIsExpanded(false)
+          }
+          break
+      }
+    }
+
+    const handleClick = () => {
+      onFocus?.(path)
+    }
+
     return (
-      <div className={`json-node ${isSearchMatch ? 'search-match' : ''} ${isSearchParent ? 'search-parent' : ''}`}>
+      <div 
+        className={`json-node ${isSearchMatch ? 'search-match' : ''} ${isSearchParent ? 'search-parent' : ''} ${
+          isFocused ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : ''
+        }`}
+        data-path={path}
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        onClick={handleClick}
+      >
         <div className="flex items-center">
           <button
             onClick={toggleExpanded}
@@ -119,12 +170,14 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
         {shouldExpand && (
           <div className="ml-4">
             {keys.map((key, index) => {
-              const childPath = `${path}.${key}`
+              const childPath = Array.isArray(data) 
+                ? (path ? `${path}[${key}]` : `[${key}]`)
+                : (path ? `${path}.${key}` : key)
               const isChildMatch = searchResults?.some(result => result.path === childPath)
               const isChildParent = searchResults?.some(result => result.path.startsWith(childPath + '.') || result.path.startsWith(childPath + '['))
               
               return (
-                <div key={key} className={`flex ${isChildMatch ? 'search-match' : ''} ${isChildParent ? 'search-parent' : ''}`}>
+                <div key={key} className={`flex ${isChildMatch ? 'search-match' : ''} ${isChildParent ? 'search-parent' : ''}`} data-path={childPath}>
                   <span className="text-gray-400 dark:text-gray-500 select-none flex-shrink-0">
                     {indent}
                   </span>
@@ -139,6 +192,11 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
                       forceCollapsed={forceCollapsed}
                       searchResults={searchResults}
                       searchQuery={searchQuery}
+                      onNavigate={onNavigate}
+                      currentPath={currentPath}
+                      isFocused={currentPath === childPath}
+                      onFocus={onFocus}
+                      expandedPaths={expandedPaths}
                     />
                   </div>
                   {index < keys.length - 1 && (
@@ -170,7 +228,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
   if (isString) {
     if (isMarkdown) {
       return (
-        <div className="json-string">
+        <div className="json-string" data-path={path}>
           <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-2">
             <div className="flex items-center justify-between mb-2">
               <div className="text-xs text-gray-500 dark:text-gray-400">Markdown Content:</div>
@@ -218,28 +276,30 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
     }
     
     return (
-      <span className="json-string">"{highlightText(data)}"</span>
+      <span className="json-string" data-path={path}>"{highlightText(data)}"</span>
     )
   }
 
   if (typeof data === 'number') {
-    return <span className="json-number">{highlightText(String(data))}</span>
+    return <span className="json-number" data-path={path}>{highlightText(String(data))}</span>
   }
 
   if (typeof data === 'boolean') {
-    return <span className="json-boolean">{highlightText(data.toString())}</span>
+    return <span className="json-boolean" data-path={path}>{highlightText(data.toString())}</span>
   }
 
   if (data === null) {
-    return <span className="json-null">{highlightText('null')}</span>
+    return <span className="json-null" data-path={path}>{highlightText('null')}</span>
   }
 
-  return <span>{highlightText(String(data))}</span>
+  return <span data-path={path}>{highlightText(String(data))}</span>
 }
 
-export default function JSONViewer({ data, searchResults, searchQuery }: JSONViewerProps) {
+export default function JSONViewer({ data, searchResults, searchQuery, onNavigate, currentPath }: JSONViewerProps) {
   const [expandAll, setExpandAll] = useState(false)
   const [collapseAll, setCollapseAll] = useState(false)
+  const [focusedPath, setFocusedPath] = useState('')
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
 
   const handleExpandAll = () => {
     setExpandAll(true)
@@ -255,6 +315,98 @@ export default function JSONViewer({ data, searchResults, searchQuery }: JSONVie
     setExpandAll(false)
     setCollapseAll(false)
   }
+
+  const handleFocus = (path: string) => {
+    setFocusedPath(path)
+  }
+
+  // Expand path to make it visible
+  const expandPathToTarget = useCallback((targetPath: string) => {
+    if (!targetPath) {
+      setExpandedPaths(new Set())
+      return
+    }
+    
+    const newExpandedPaths = new Set(expandedPaths)
+    
+    // Split path by both dots and brackets, but keep brackets with their content
+    const pathParts: string[] = []
+    let currentPart = ''
+    let inBrackets = false
+    
+    for (let i = 0; i < targetPath.length; i++) {
+      const char = targetPath[i]
+      if (char === '[') {
+        if (currentPart) {
+          pathParts.push(currentPart)
+          currentPart = ''
+        }
+        inBrackets = true
+        currentPart += char
+      } else if (char === ']') {
+        currentPart += char
+        pathParts.push(currentPart)
+        currentPart = ''
+        inBrackets = false
+      } else if (char === '.' && !inBrackets) {
+        if (currentPart) {
+          pathParts.push(currentPart)
+          currentPart = ''
+        }
+      } else {
+        currentPart += char
+      }
+    }
+    
+    if (currentPart) {
+      pathParts.push(currentPart)
+    }
+    
+    // Expand all parent paths
+    for (let i = 0; i < pathParts.length; i++) {
+      const parentPath = pathParts.slice(0, i + 1).join('')
+      newExpandedPaths.add(parentPath)
+    }
+    
+    setExpandedPaths(newExpandedPaths)
+    
+    // Scroll to the target element after a short delay
+    setTimeout(() => {
+      const targetElement = document.querySelector(`[data-path="${targetPath}"]`)
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        // Add highlight effect
+        targetElement.classList.add('highlight-navigation')
+        setTimeout(() => {
+          targetElement.classList.remove('highlight-navigation')
+        }, 2000)
+      } else {
+        // If exact path not found, try to find a parent path
+        const parentPaths = pathParts.map((_, index) => pathParts.slice(0, index + 1).join(''))
+        for (const parentPath of parentPaths.reverse()) {
+          const parentElement = document.querySelector(`[data-path="${parentPath}"]`)
+          if (parentElement) {
+            parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            parentElement.classList.add('highlight-navigation')
+            setTimeout(() => {
+              parentElement.classList.remove('highlight-navigation')
+            }, 2000)
+            break
+          }
+        }
+      }
+    }, 200)
+  }, [expandedPaths])
+
+  // Handle navigation from parent component
+  useEffect(() => {
+    if (currentPath) {
+      expandPathToTarget(currentPath)
+    } else {
+      // Reset expanded paths when navigating to root
+      setExpandedPaths(new Set())
+    }
+  }, [currentPath])
 
   return (
     <div className="p-6 w-full max-w-full overflow-hidden">
@@ -286,6 +438,15 @@ export default function JSONViewer({ data, searchResults, searchQuery }: JSONVie
               Reset
             </button>
           )}
+          {currentPath && (
+            <button
+              onClick={() => onNavigate?.('')}
+              className="px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+              title="Reset navigation (Ctrl+R)"
+            >
+              Reset Nav
+            </button>
+          )}
         </div>
       </div>
       
@@ -296,6 +457,11 @@ export default function JSONViewer({ data, searchResults, searchQuery }: JSONVie
           forceCollapsed={collapseAll ? true : undefined}
           searchResults={searchResults}
           searchQuery={searchQuery}
+          onNavigate={onNavigate}
+          currentPath={currentPath}
+          isFocused={focusedPath === ''}
+          onFocus={handleFocus}
+          expandedPaths={expandedPaths}
         />
       </div>
     </div>
