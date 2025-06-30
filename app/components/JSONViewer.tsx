@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize } from 'lucide-react'
+import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize, Eye, Code } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
@@ -24,6 +24,7 @@ interface JSONNodeProps {
 function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery }: JSONNodeProps) {
   const [isExpanded, setIsExpanded] = useState(level < 2)
   const [copied, setCopied] = useState(false)
+  const [markdownViewMode, setMarkdownViewMode] = useState<'compiled' | 'raw'>('compiled')
 
   // Override local state if force flags are set
   const shouldExpand = forceExpanded !== undefined ? forceExpanded : isExpanded
@@ -80,7 +81,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
         <div className="flex items-center">
           <button
             onClick={toggleExpanded}
-            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mr-1 text-gray-600 dark:text-gray-400"
+            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded mr-1 text-gray-600 dark:text-gray-400 flex-shrink-0"
             disabled={isEmpty || forceExpanded !== undefined || forceCollapsed !== undefined}
           >
             {isEmpty ? (
@@ -92,7 +93,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
             )}
           </button>
           
-          <span className="json-bracket">{isArray ? '[' : '{'}</span>
+          <span className="json-bracket flex-shrink-0">{isArray ? '[' : '{'}</span>
           
           {!isEmpty && shouldCollapse && (
             <span className="text-gray-500 dark:text-gray-400 text-sm ml-2">
@@ -103,7 +104,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
           {!isEmpty && shouldExpand && (
             <button
               onClick={handleCopy}
-              className="ml-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+              className="ml-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded flex-shrink-0"
               title="Copy to clipboard"
             >
               {copied ? (
@@ -124,11 +125,11 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
               
               return (
                 <div key={key} className={`flex ${isChildMatch ? 'search-match' : ''} ${isChildParent ? 'search-parent' : ''}`}>
-                  <span className="text-gray-400 dark:text-gray-500 select-none">
+                  <span className="text-gray-400 dark:text-gray-500 select-none flex-shrink-0">
                     {indent}
                   </span>
-                  <span className="json-key">"{highlightText(key)}"</span>
-                  <span className="json-comma">: </span>
+                  <span className="json-key flex-shrink-0">"{highlightText(key)}"</span>
+                  <span className="json-comma flex-shrink-0">: </span>
                   <div className="flex-1">
                     <JSONNode
                       data={data[key]}
@@ -141,16 +142,16 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
                     />
                   </div>
                   {index < keys.length - 1 && (
-                    <span className="json-comma">,</span>
+                    <span className="json-comma flex-shrink-0">,</span>
                   )}
                 </div>
               )
             })}
             <div className="flex">
-              <span className="text-gray-400 dark:text-gray-500 select-none">
+              <span className="text-gray-400 dark:text-gray-500 select-none flex-shrink-0">
                 {indent}
               </span>
-              <span className="json-bracket">
+              <span className="json-bracket flex-shrink-0">
                 {isArray ? ']' : '}'}
               </span>
             </div>
@@ -158,7 +159,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
         )}
 
         {shouldCollapse && (
-          <span className="json-bracket">
+          <span className="json-bracket flex-shrink-0">
             {isArray ? ']' : '}'}
           </span>
         )}
@@ -171,11 +172,45 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
       return (
         <div className="json-string">
           <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-2">
-            <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Markdown Content:</div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-xs text-gray-500 dark:text-gray-400">Markdown Content:</div>
+              <div className="flex items-center space-x-2 flex-shrink-0">
+                <button
+                  onClick={() => setMarkdownViewMode('compiled')}
+                  className={`flex items-center space-x-1 px-2 py-1 text-xs rounded transition-colors ${
+                    markdownViewMode === 'compiled'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  title="View compiled markdown"
+                >
+                  <Eye className="h-3 w-3" />
+                  <span>Compiled</span>
+                </button>
+                <button
+                  onClick={() => setMarkdownViewMode('raw')}
+                  className={`flex items-center space-x-1 px-2 py-1 text-xs rounded transition-colors ${
+                    markdownViewMode === 'raw'
+                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  }`}
+                  title="View raw markdown"
+                >
+                  <Code className="h-3 w-3" />
+                  <span>Raw</span>
+                </button>
+              </div>
+            </div>
             <div className="markdown-content">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {data}
-              </ReactMarkdown>
+              {markdownViewMode === 'compiled' ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {data}
+                </ReactMarkdown>
+              ) : (
+                <pre className="whitespace-pre-wrap text-sm font-mono text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-900 p-3 rounded border border-gray-200 dark:border-gray-600 overflow-x-auto break-words">
+                  {data}
+                </pre>
+              )}
             </div>
           </div>
         </div>
@@ -222,10 +257,10 @@ export default function JSONViewer({ data, searchResults, searchQuery }: JSONVie
   }
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">JSON Viewer</h3>
-        <div className="flex items-center space-x-2">
+    <div className="p-6 w-full max-w-full overflow-hidden">
+      <div className="flex items-center justify-between mb-4 min-w-0">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">JSON Viewer</h3>
+        <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={handleExpandAll}
             className="flex items-center space-x-2 px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
@@ -254,7 +289,7 @@ export default function JSONViewer({ data, searchResults, searchQuery }: JSONVie
         </div>
       </div>
       
-      <div className="json-viewer text-sm">
+      <div className="json-viewer text-sm w-full max-w-full overflow-hidden">
         <JSONNode 
           data={data} 
           forceExpanded={expandAll ? true : undefined}

@@ -110,41 +110,41 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <div className="container mx-auto px-4 py-8">
-        <header className="text-center mb-8">
-          <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors w-full max-w-full overflow-hidden">
+      <div className="container mx-auto px-4 py-8 w-full max-w-full overflow-hidden">
+        <header className="text-center mb-8 w-full max-w-full overflow-hidden">
+          <div className="flex items-center justify-between mb-4 min-w-0">
             <div></div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white truncate">
               JSON Viewer
             </h1>
             <DarkModeToggle />
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-400 w-full max-w-full overflow-hidden">
             Upload, view, edit, and download JSON files with advanced search and validation
           </p>
         </header>
 
         {!jsonData ? (
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto w-full max-w-full overflow-hidden">
             <FileUpload onFileUpload={handleFileUpload} />
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 w-full max-w-full overflow-hidden">
             {/* Header with file info and actions */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <FileText className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <h2 className="font-semibold text-gray-900 dark:text-white">{fileName}</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 w-full max-w-full overflow-hidden">
+              <div className="flex items-center justify-between min-w-0">
+                <div className="flex items-center space-x-3 min-w-0">
+                  <FileText className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <h2 className="font-semibold text-gray-900 dark:text-white truncate">{fileName}</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       {typeof jsonData === 'object' ? 'JSON Object' : 'JSON Array'}
                     </p>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 flex-shrink-0">
                   {!isEditing ? (
                     <button
                       onClick={handleEdit}
@@ -208,7 +208,7 @@ export default function Home() {
 
             {/* Advanced Search */}
             {showSearch && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 w-full max-w-full overflow-hidden">
                 <AdvancedSearch 
                   data={jsonData}
                   onSearchResults={handleSearchResults}
@@ -239,7 +239,7 @@ export default function Home() {
             <JSONStats data={jsonData} />
 
             {/* JSON Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full max-w-full overflow-hidden">
               {isEditing ? (
                 <JSONEditor 
                   data={jsonData} 
