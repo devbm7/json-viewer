@@ -176,6 +176,10 @@ export default function Home() {
             e.preventDefault()
             if (jsonData && !isEditing && !isSideBySide) handleEdit()
             break
+          case 'q':
+            e.preventDefault()
+            if (jsonData && (isEditing || isSideBySide)) handleView()
+            break
           case 'b':
             e.preventDefault()
             if (jsonData && !isSideBySide && !isEditing) handleSideBySide()
@@ -286,7 +290,7 @@ export default function Home() {
                     <button
                       onClick={handleView}
                       className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                      title="View JSON (Ctrl+V)"
+                      title="View JSON (Ctrl+Q)"
                     >
                       <Eye className="h-4 w-4" />
                       <span>View</span>

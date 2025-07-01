@@ -22,7 +22,7 @@ export default function KeyboardShortcuts({ onEdit, onView, onSideBySide, onDown
   const shortcuts = [
     { key: 'Ctrl + E', description: 'Edit JSON', action: onEdit },
     { key: 'Ctrl + B', description: 'Side-by-Side Editor', action: onSideBySide },
-    { key: 'Ctrl + V', description: 'View JSON', action: onView },
+    { key: 'Ctrl + Q', description: 'View JSON', action: onView },
     { key: 'Ctrl + S', description: 'Download JSON', action: onDownload },
     { key: 'Ctrl + K', description: 'Clear JSON', action: onClear },
     { key: 'Ctrl + F', description: 'Toggle search', action: () => {} },
