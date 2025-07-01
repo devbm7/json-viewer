@@ -19,6 +19,38 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const lineNumbersRef = useRef<HTMLDivElement>(null)
 
+  // New: State for adjustable width (percentage of editor panel)
+  const [editorWidthPercent, setEditorWidthPercent] = useState(50)
+  const draggingRef = useRef(false)
+
+  // Minimum width for each panel (in percent)
+  const MIN_WIDTH = 10
+  const MAX_WIDTH = 100
+
+  // New: Mouse event handlers for dragging
+  const handleMouseMove = (e: MouseEvent) => {
+    if (!draggingRef.current) return
+    const container = document.getElementById('side-by-side-container')
+    if (!container) return
+    const rect = container.getBoundingClientRect()
+    let percent = ((e.clientX - rect.left) / rect.width) * 100
+    if (percent < 0) percent = 0
+    if (percent > 100) percent = 100
+    setEditorWidthPercent(percent)
+  }
+
+  const handleMouseUp = () => {
+    draggingRef.current = false
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
+  }
+
+  const handleDividerMouseDown = () => {
+    draggingRef.current = true
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+  }
+
   useEffect(() => {
     try {
       const formatted = JSON.stringify(data, null, 2)
@@ -141,9 +173,12 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
       )}
 
       {/* Main Content */}
-      <div className={`flex-1 flex ${showPreview ? 'flex-row' : 'flex-col'} min-h-0 overflow-hidden`}>
+      <div id="side-by-side-container" className={`flex-1 flex ${showPreview ? 'flex-row' : 'flex-col'} min-h-0 overflow-hidden relative`}>
         {/* Editor Panel */}
-        <div className={`${showPreview ? 'w-1/2' : 'w-full'} flex flex-col border-r border-gray-200 dark:border-gray-700 min-h-0`}>
+        <div
+          style={showPreview ? { width: `${editorWidthPercent}%`, transition: draggingRef.current ? 'none' : 'width 0.15s' } : { width: '100%' }}
+          className={`flex flex-col border-r border-gray-200 dark:border-gray-700 min-h-0 bg-white dark:bg-gray-800`}
+        >
           <div className="flex-1 relative min-h-0 overflow-hidden">
             <textarea
               ref={textareaRef}
@@ -171,9 +206,25 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
           </div>
         </div>
 
+        {/* Draggable Divider */}
+        {showPreview && (
+          <div
+            style={{ cursor: 'col-resize', width: 4, zIndex: 10 }}
+            className="relative bg-gray-200 dark:bg-gray-700 hover:bg-blue-400 dark:hover:bg-blue-500 transition-colors"
+            onMouseDown={handleDividerMouseDown}
+            onDoubleClick={() => setEditorWidthPercent(50)}
+            aria-label="Resize editor and preview panels"
+          >
+            <div className="absolute left-1/2 top-0 -translate-x-1/2 w-1 h-full bg-blue-400 dark:bg-blue-500 rounded" style={{ opacity: 0.5 }} />
+          </div>
+        )}
+
         {/* Preview Panel */}
         {showPreview && (
-          <div className="w-1/2 flex flex-col min-h-0 overflow-hidden">
+          <div
+            style={{ width: `${100 - editorWidthPercent}%`, transition: draggingRef.current ? 'none' : 'width 0.15s' }}
+            className="flex flex-col min-h-0 overflow-hidden bg-white dark:bg-gray-900"
+          >
             <div className="flex-1 overflow-auto">
               {isValid ? (
                 <JSONViewer 
