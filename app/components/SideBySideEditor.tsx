@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Save, X, AlertCircle, Check, Eye, Code, Split } from 'lucide-react'
 import JSONViewer from './JSONViewer'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface SideBySideEditorProps {
   data: any
@@ -11,6 +12,7 @@ interface SideBySideEditorProps {
 }
 
 export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideEditorProps) {
+  const { currentTheme } = useTheme()
   const [jsonText, setJsonText] = useState('')
   const [error, setError] = useState<string>('')
   const [isValid, setIsValid] = useState(true)
@@ -177,7 +179,7 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
         {/* Editor Panel */}
         <div
           style={showPreview ? { width: `${editorWidthPercent}%`, transition: draggingRef.current ? 'none' : 'width 0.15s' } : { width: '100%' }}
-          className={`flex flex-col border-r border-gray-200 dark:border-gray-700 min-h-0 bg-white dark:bg-gray-800`}
+          className={`flex flex-col border-r border-gray-200 dark:border-gray-700 min-h-0`}
         >
           <div className="flex-1 relative min-h-0 overflow-hidden">
             <textarea
@@ -185,7 +187,11 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
               value={jsonText}
               onChange={handleTextChange}
               onScroll={handleScroll}
-              className={`w-full h-full pl-16 pr-4 py-4 font-mono text-sm border-0 resize-none focus:outline-none focus:ring-0 text-gray-900 dark:text-white bg-white dark:bg-gray-800 overflow-auto ${
+              style={{
+                backgroundColor: currentTheme.colors.background,
+                color: currentTheme.colors.foreground
+              }}
+              className={`w-full h-full pl-16 pr-4 py-4 font-mono text-sm border-0 resize-none focus:outline-none focus:ring-0 overflow-auto ${
                 isValid ? '' : 'border-red-300 dark:border-red-600'
               }`}
               placeholder="Enter JSON data..."
@@ -195,7 +201,12 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
             {/* Line numbers */}
             <div 
               ref={lineNumbersRef}
-              className="absolute left-0 top-0 w-12 h-full bg-gray-100 dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 font-mono overflow-hidden"
+              style={{
+                backgroundColor: currentTheme.mode === 'dark' ? '#374151' : '#f3f4f6',
+                color: currentTheme.mode === 'dark' ? '#9ca3af' : '#6b7280',
+                borderColor: currentTheme.mode === 'dark' ? '#4b5563' : '#d1d5db'
+              }}
+              className="absolute left-0 top-0 w-12 h-full border-r text-xs font-mono overflow-hidden"
             >
               {jsonText.split('\n').map((_, index) => (
                 <div key={index} className="h-6 flex items-center justify-center">
@@ -222,8 +233,12 @@ export default function SideBySideEditor({ data, onSave, onCancel }: SideBySideE
         {/* Preview Panel */}
         {showPreview && (
           <div
-            style={{ width: `${100 - editorWidthPercent}%`, transition: draggingRef.current ? 'none' : 'width 0.15s' }}
-            className="flex flex-col min-h-0 overflow-hidden bg-white dark:bg-gray-900"
+            style={{ 
+              width: `${100 - editorWidthPercent}%`, 
+              transition: draggingRef.current ? 'none' : 'width 0.15s',
+              backgroundColor: currentTheme.colors.background
+            }}
+            className="flex flex-col min-h-0 overflow-hidden"
           >
             <div className="flex-1 overflow-auto">
               {isValid ? (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Save, X, AlertCircle, Check } from 'lucide-react'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface JSONEditorProps {
   data: any
@@ -10,6 +11,7 @@ interface JSONEditorProps {
 }
 
 export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) {
+  const { currentTheme } = useTheme()
   const [jsonText, setJsonText] = useState('')
   const [error, setError] = useState<string>('')
   const [isValid, setIsValid] = useState(true)
@@ -119,7 +121,12 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
           value={jsonText}
           onChange={handleTextChange}
           onScroll={handleScroll}
-          className={`w-full h-96 pl-16 pr-4 py-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white bg-white dark:bg-gray-800 ${
+          style={{
+            backgroundColor: currentTheme.colors.background,
+            color: currentTheme.colors.foreground,
+            borderColor: isValid ? 'rgb(209 213 219)' : 'rgb(252 165 165)'
+          }}
+          className={`w-full h-96 pl-16 pr-4 py-4 font-mono text-sm border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
             isValid ? 'border-gray-300 dark:border-gray-600' : 'border-red-300 dark:border-red-600'
           }`}
           placeholder="Enter JSON data..."
@@ -129,7 +136,12 @@ export default function JSONEditor({ data, onSave, onCancel }: JSONEditorProps) 
         {/* Line numbers */}
         <div 
           ref={lineNumbersRef}
-          className="absolute left-0 top-0 w-12 h-96 bg-gray-100 dark:bg-gray-700 border-r border-gray-300 dark:border-gray-600 text-xs text-gray-500 dark:text-gray-400 font-mono overflow-hidden"
+          style={{
+            backgroundColor: currentTheme.mode === 'dark' ? '#374151' : '#f3f4f6',
+            color: currentTheme.mode === 'dark' ? '#9ca3af' : '#6b7280',
+            borderColor: currentTheme.mode === 'dark' ? '#4b5563' : '#d1d5db'
+          }}
+          className="absolute left-0 top-0 w-12 h-96 border-r text-xs font-mono overflow-hidden"
         >
           {jsonText.split('\n').map((_, index) => (
             <div key={index} className="h-6 flex items-center justify-center">
