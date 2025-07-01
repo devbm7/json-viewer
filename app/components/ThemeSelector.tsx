@@ -43,15 +43,15 @@ const themeSchemes: ThemeScheme[] = [
     name: 'Monokai Dimmed',
     mode: 'dark',
     colors: {
-      background: '#1e1e1e',
-      foreground: '#d4d4d4',
-      jsonKey: '#ff7b72',
-      jsonString: '#ce9178',
-      jsonNumber: '#dcdcaa',
-      jsonBoolean: '#4fc1ff',
-      jsonNull: '#4fc1ff',
-      jsonBracket: '#d4d4d4',
-      jsonComma: '#d4d4d4'
+      background: '#222426',
+      foreground: '#f8f8f2',
+      jsonKey: '#f92672',
+      jsonString: '#e6db74',
+      jsonNumber: '#ae81ff',
+      jsonBoolean: '#66d9ef',
+      jsonNull: '#66d9ef',
+      jsonBracket: '#f8f8f2',
+      jsonComma: '#f8f8f2'
     }
   },
   {
@@ -62,11 +62,11 @@ const themeSchemes: ThemeScheme[] = [
       background: '#1e1e1e',
       foreground: '#d4d4d4',
       jsonKey: '#9cdcfe',
-      jsonString: '#a64714',
+      jsonString: '#ce9178',
       jsonNumber: '#b5cea8',
       jsonBoolean: '#569cd6',
       jsonNull: '#569cd6',
-      jsonBracket: '#dbdb09',
+      jsonBracket: '#d4d4d4',
       jsonComma: '#d4d4d4'
     }
   },
@@ -108,7 +108,7 @@ const themeSchemes: ThemeScheme[] = [
     mode: 'dark',
     colors: {
       background: '#002451',
-      foreground: '#ffffff',
+      foreground: '#a3b8ef',
       jsonKey: '#ff9da4',
       jsonString: '#d1f1a9',
       jsonNumber: '#ffc58f',
