@@ -62,7 +62,7 @@ const themeSchemes: ThemeScheme[] = [
       background: '#1e1e1e',
       foreground: '#d4d4d4',
       jsonKey: '#9cdcfe',
-      jsonString: '#f5f0f0',
+      jsonString: '#a64714',
       jsonNumber: '#b5cea8',
       jsonBoolean: '#569cd6',
       jsonNull: '#569cd6',

@@ -164,15 +164,17 @@ export default function Home() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
+      // More robust: check if target or any ancestor is input, textarea, or contenteditable
+      const target = e.target as HTMLElement;
+      const isInput = target && (
+        target.closest('input, textarea, [contenteditable="true"]') ||
+        (target as HTMLElement).isContentEditable
+      );
+      if ((e.ctrlKey || e.metaKey) && !isInput) {
         switch (e.key) {
           case 'e':
             e.preventDefault()
             if (jsonData && !isEditing && !isSideBySide) handleEdit()
-            break
-          case 'v':
-            e.preventDefault()
-            if (jsonData && (isEditing || isSideBySide)) handleView()
             break
           case 'b':
             e.preventDefault()
