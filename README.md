@@ -30,7 +30,7 @@ A beautiful, modern JSON viewer with markdown support, dark mode, and advanced f
 
 1. Clone the repository:
 ```bash
-gh repo clone devbm7/json-viewer
+git clone https://github.com/devbm7/json-viewer.git
 cd json-viewer
 ```
 
