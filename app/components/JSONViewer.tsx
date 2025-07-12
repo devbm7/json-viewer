@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize, Eye, Code } from 'lucide-react'
+import { ChevronDown, ChevronRight, Copy, Check, Expand, Minimize, Eye, Code, FileText } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useTheme } from '../contexts/ThemeContext'
@@ -27,9 +27,10 @@ interface JSONNodeProps {
   isFocused?: boolean
   onFocus?: (path: string) => void
   expandedPaths?: Set<string>
+  globalMarkdownDisabled?: boolean
 }
 
-function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery, onNavigate, currentPath, isFocused, onFocus, expandedPaths }: JSONNodeProps) {
+function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, searchResults, searchQuery, onNavigate, currentPath, isFocused, onFocus, expandedPaths, globalMarkdownDisabled }: JSONNodeProps) {
   const { currentTheme } = useTheme()
   const [isExpanded, setIsExpanded] = useState(level < 2)
   const [copied, setCopied] = useState(false)
@@ -210,6 +211,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
                       isFocused={currentPath === childPath}
                       onFocus={onFocus}
                       expandedPaths={expandedPaths}
+                      globalMarkdownDisabled={globalMarkdownDisabled}
                     />
                   </div>
                   {index < keys.length - 1 && (
@@ -239,7 +241,7 @@ function JSONNode({ data, level = 0, path = '', forceExpanded, forceCollapsed, s
   }
 
   if (isString) {
-    if (isMarkdown) {
+    if (isMarkdown && !globalMarkdownDisabled) {
       return (
         <div className="json-string" data-path={path}>
           <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-2">
@@ -314,6 +316,7 @@ export default function JSONViewer({ data, searchResults, searchQuery, onNavigat
   const [collapseAll, setCollapseAll] = useState(false)
   const [focusedPath, setFocusedPath] = useState('')
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set())
+  const [markdownDisabled, setMarkdownDisabled] = useState(false)
 
   const handleExpandAll = () => {
     setExpandAll(true)
@@ -332,6 +335,10 @@ export default function JSONViewer({ data, searchResults, searchQuery, onNavigat
 
   const handleFocus = (path: string) => {
     setFocusedPath(path)
+  }
+
+  const handleToggleMarkdown = () => {
+    setMarkdownDisabled(!markdownDisabled)
   }
 
   // Expand path to make it visible
@@ -428,6 +435,18 @@ export default function JSONViewer({ data, searchResults, searchQuery, onNavigat
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">JSON Viewer</h3>
         <div className="flex items-center space-x-2 flex-shrink-0">
           <button
+            onClick={handleToggleMarkdown}
+            className={`flex items-center space-x-2 px-3 py-1 text-sm rounded transition-colors ${
+              markdownDisabled
+                ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+            }`}
+            title={markdownDisabled ? "Enable markdown compilation" : "Disable markdown compilation"}
+          >
+            <FileText className="h-4 w-4" />
+            <span>{markdownDisabled ? 'Raw JSON' : 'Markdown'}</span>
+          </button>
+          <button
             onClick={handleExpandAll}
             className="flex items-center space-x-2 px-3 py-1 text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
             title="Expand all nodes"
@@ -482,6 +501,7 @@ export default function JSONViewer({ data, searchResults, searchQuery, onNavigat
           isFocused={focusedPath === ''}
           onFocus={handleFocus}
           expandedPaths={expandedPaths}
+          globalMarkdownDisabled={markdownDisabled}
         />
       </div>
     </div>

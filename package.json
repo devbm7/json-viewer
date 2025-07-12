@@ -8,26 +8,31 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "keywords": ["json", "viewer", "markdown", "editor"],
+  "keywords": [
+    "json",
+    "viewer",
+    "markdown",
+    "editor"
+  ],
   "author": "",
   "license": "ISC",
   "description": "A beautiful JSON viewer with markdown support",
   "dependencies": {
-    "next": "^14.0.0",
+    "lucide-react": "^0.263.1",
+    "next": "^15.3.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0",
     "react-syntax-highlighter": "^15.5.0",
-    "lucide-react": "^0.263.1"
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "typescript": "^5.0.0",
-    "tailwindcss": "^3.3.0",
     "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0"
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.0"
   }
 }
